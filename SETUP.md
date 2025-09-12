@@ -215,26 +215,41 @@ INSERT INTO events (title, description, event_date, location, is_published) VALU
 
 ### 4. Environment Variables
 
-Buat file `.env.local`:
+**Langkah 1: Copy Template**
+\`\`\`bash
+# Copy template environment file
+cp .env.example .env.local
+\`\`\`
+
+**Langkah 2: Edit .env.local**
+Buka file `.env.local` dan isi dengan credentials Supabase Anda:
 
 \`\`\`env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+# Supabase Configuration (dari Supabase Dashboard → Settings → API)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# Development
+# Development URLs
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000
 
-# Database (dari Supabase Settings → Database)
-POSTGRES_URL=postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres
-POSTGRES_PRISMA_URL=postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres?pgbouncer=true&connect_timeout=15
-POSTGRES_URL_NON_POOLING=postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres
+# Database URLs (dari Supabase Settings → Database → Connection string)
+POSTGRES_URL=postgresql://postgres:[password]@db.[project-id].supabase.co:5432/postgres
+POSTGRES_PRISMA_URL=postgresql://postgres:[password]@db.[project-id].supabase.co:6543/postgres?pgbouncer=true&connect_timeout=15
+POSTGRES_URL_NON_POOLING=postgresql://postgres:[password]@db.[project-id].supabase.co:5432/postgres
 POSTGRES_USER=postgres
-POSTGRES_HOST=db.[project].supabase.co
+POSTGRES_HOST=db.[project-id].supabase.co
 POSTGRES_PASSWORD=your-database-password
 POSTGRES_DATABASE=postgres
+SUPABASE_JWT_SECRET=your-jwt-secret
+SUPABASE_ANON_KEY=your-anon-key
 \`\`\`
+
+**⚠️ Penting:**
+- Jangan commit file `.env.local` ke Git (sudah ada di .gitignore)
+- Gunakan `.env.example` sebagai template
+- Ganti `your-project-id` dengan ID project Supabase Anda
+- Ganti `[password]` dengan password database Anda
 
 ### 5. Run Development Server
 
@@ -327,12 +342,25 @@ curl http://localhost:3000/api/ebooks
 
 ### Environment Variables untuk Production
 
+**File: `.env.production` (untuk Vercel)**
 \`\`\`env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Production redirect (ganti dengan domain production Anda)
+NEXT_PUBLIC_REDIRECT_URL=https://your-production-domain.com
+
+# Database (sama seperti development, tapi bisa berbeda untuk production)
 POSTGRES_URL=your-production-postgres-url
-# ... semua variables lainnya
+POSTGRES_PRISMA_URL=your-production-postgres-url
+POSTGRES_URL_NON_POOLING=your-production-postgres-url
+POSTGRES_USER=postgres
+POSTGRES_HOST=db.your-project-id.supabase.co
+POSTGRES_PASSWORD=your-database-password
+POSTGRES_DATABASE=postgres
+SUPABASE_JWT_SECRET=your-jwt-secret
+SUPABASE_ANON_KEY=your-anon-key
 \`\`\`
 
 ### Post-Deployment

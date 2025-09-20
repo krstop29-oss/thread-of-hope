@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/server"
+import { prisma } from "@/lib/prisma"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
@@ -9,91 +11,72 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category")
     const published = searchParams.get("published") !== "false"
 
-    const supabase = await createClient()
+    const skip = (page - 1) * limit
 
-    let query = supabase.from("ebooks").select("*", { count: "exact" }).order("created_at", { ascending: false })
-
+    const where: any = {}
     if (published) {
-      query = query.eq("is_published", true)
+      where.isPublished = true
     }
-
     if (category && category !== "all") {
-      query = query.eq("category", category)
+      where.category = category
     }
 
-    const from = (page - 1) * limit
-    const to = from + limit - 1
-
-    const { data, error, count } = await query.range(from, to)
-
-    if (error) {
-      console.error("Supabase error:", error)
-      return NextResponse.json({ error: "Failed to fetch ebooks" }, { status: 500 })
-    }
+    const [data, total] = await Promise.all([
+      prisma.ebook.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.ebook.count({ where }),
+    ])
 
     return NextResponse.json({
       data,
       pagination: {
         page,
         limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     })
   } catch (error) {
-    console.error("API error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Database error:", error)
+    return NextResponse.json({ error: "Failed to fetch ebooks" }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { title, description, author, category, cover_image_url, file_url } = body
+    const session = await getServerSession(authOptions)
 
-    if (!title || !description || !author || !category || !file_url) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
-    }
-
-    const supabase = await createClient()
-
-    // Check if user is admin
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
+    if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: adminUser } = await supabase.from("admin_users").select("*").eq("id", user.id).single()
+    const body = await request.json()
+    const { title, description, author, category, coverImageUrl, fileUrl } = body
 
-    if (!adminUser) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (!title || !description || !author || !category || !fileUrl) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const { data, error } = await supabase
-      .from("ebooks")
-      .insert({
+    const data = await prisma.ebook.create({
+      data: {
         title,
         description,
         author,
         category,
-        cover_image_url,
-        file_url,
-        is_published: false,
-        download_count: 0,
-      })
-      .select()
-      .single()
-
-    if (error) {
-      console.error("Supabase error:", error)
-      return NextResponse.json({ error: "Failed to create ebook" }, { status: 500 })
-    }
+        coverImageUrl,
+        fileUrl,
+        isPublished: false,
+        downloadCount: 0,
+      },
+    })
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error("API error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Database error:", error)
+    return NextResponse.json({ error: "Failed to create ebook" }, { status: 500 })
   }
 }

@@ -1,20 +1,24 @@
-import { createClient } from "@/lib/supabase/server"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import CommunityJoinForm from "@/components/community-join-form"
 import CommunityStats from "@/components/community-stats"
 
 export default async function KomunitasPage() {
-  const supabase = await createClient()
-
-  // Fetch community stats
-  const { count: totalMembers } = await supabase
-    .from("community_members")
-    .select("*", { count: "exact", head: true })
-    .eq("is_approved", true)
+  // Fetch community stats from API
+  let totalMembers = 0
+  try {
+    // TODO: Create API endpoint for community stats
+    // const response = await fetch('/api/community/stats')
+    // if (response.ok) {
+    //   const data = await response.json()
+    //   totalMembers = data.totalMembers || 0
+    // }
+  } catch (error) {
+    console.error("Error fetching community stats:", error)
+  }
 
   const stats = {
-    totalMembers: totalMembers || 0,
+    totalMembers,
   }
 
   return (

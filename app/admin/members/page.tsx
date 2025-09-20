@@ -1,33 +1,34 @@
-import { createClient } from "@/lib/supabase/server"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import AdminNavbar from "@/components/admin/admin-navbar"
 import MemberManagement from "@/components/admin/member-management"
 
 export default async function AdminMembersPage() {
-  const supabase = await createClient()
+  const session = await getServerSession(authOptions)
 
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data?.user) {
-    redirect("/auth/login")
-  }
-
-  // Check if user is admin
-  const { data: adminUser } = await supabase.from("admin_users").select("*").eq("id", data.user.id).single()
-
-  if (!adminUser) {
+  if (!session || session.user.role !== 'admin') {
     redirect("/")
   }
 
-  // Fetch all community members
-  const { data: members } = await supabase
-    .from("community_members")
-    .select("*")
-    .order("joined_at", { ascending: false })
+  // Fetch all community members from API
+  let members = []
+  try {
+    const response = await fetch('/api/community?limit=1000', {
+      cache: 'no-store'
+    })
+    if (response.ok) {
+      const data = await response.json()
+      members = data.data || []
+    }
+  } catch (error) {
+    console.error("Error fetching members:", error)
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminNavbar user={data.user} />
-      <MemberManagement initialMembers={members || []} />
+      <AdminNavbar user={session.user} />
+      <MemberManagement initialMembers={members} />
     </div>
   )
 }

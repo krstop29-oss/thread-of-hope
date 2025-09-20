@@ -60,7 +60,7 @@ export default function CurhatList({ initialStories }: CurhatListProps) {
                   <CardHeader className="pb-4">
                     <div className="flex items-center space-x-3">
                       <Image
-                        src="/thread of hope/images/icon profile.png"
+                        src="/images/icon-profile.png"
                         alt="Profile"
                         width={48}
                         height={48}

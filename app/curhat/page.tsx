@@ -1,20 +1,20 @@
-import { createClient } from "@/lib/supabase/server"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import CurhatList from "@/components/curhat-list"
 import StoryForm from "@/components/story-form"
 
 export default async function CurhatPage() {
-  const supabase = await createClient()
-
-  // Fetch approved curhat stories
-  const { data: stories, error } = await supabase
-    .from("curhat")
-    .select("*")
-    .eq("is_approved", true)
-    .order("created_at", { ascending: false })
-
-  if (error) {
+  // Fetch approved curhat stories from API
+  let stories = []
+  try {
+    const response = await fetch('/api/curhat?approved=true&limit=50', {
+      cache: 'no-store'
+    })
+    if (response.ok) {
+      const data = await response.json()
+      stories = data.data || []
+    }
+  } catch (error) {
     console.error("Error fetching stories:", error)
   }
 
@@ -38,7 +38,7 @@ export default async function CurhatPage() {
       <StoryForm />
 
       {/* Stories List */}
-      <CurhatList initialStories={stories || []} />
+      <CurhatList initialStories={stories} />
 
       <Footer />
     </main>

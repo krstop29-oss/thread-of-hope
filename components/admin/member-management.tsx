@@ -11,16 +11,16 @@ import { Check, X, Mail, Phone, MapPin, Briefcase } from "lucide-react"
 
 interface CommunityMember {
   id: string
-  full_name: string
+  fullName: string
   email: string
   phone: string | null
   age: number
   city: string
   occupation: string | null
   motivation: string
-  how_did_you_hear: string
-  is_approved: boolean
-  joined_at: string
+  howDidYouHear: string
+  isApproved: boolean
+  joinedAt: string
 }
 
 interface MemberManagementProps {
@@ -37,11 +37,11 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
       const response = await fetch(`/api/community/members/${memberId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_approved: true }),
+        body: JSON.stringify({ isApproved: true }),
       })
 
       if (response.ok) {
-        setMembers(members.map((member) => (member.id === memberId ? { ...member, is_approved: true } : member)))
+        setMembers(members.map((member) => (member.id === memberId ? { ...member, isApproved: true } : member)))
       }
     } catch (error) {
       console.error("Error approving member:", error)
@@ -56,11 +56,11 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
       const response = await fetch(`/api/community/members/${memberId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_approved: false }),
+        body: JSON.stringify({ isApproved: false }),
       })
 
       if (response.ok) {
-        setMembers(members.map((member) => (member.id === memberId ? { ...member, is_approved: false } : member)))
+        setMembers(members.map((member) => (member.id === memberId ? { ...member, isApproved: false } : member)))
       }
     } catch (error) {
       console.error("Error rejecting member:", error)
@@ -69,21 +69,21 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
     }
   }
 
-  const pendingMembers = members.filter((member) => !member.is_approved)
-  const approvedMembers = members.filter((member) => member.is_approved)
+  const pendingMembers = members.filter((member) => !member.isApproved)
+  const approvedMembers = members.filter((member) => member.isApproved)
 
   const MemberCard = ({ member }: { member: CommunityMember }) => (
     <Card key={member.id} className="mb-4">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg">{member.full_name}</CardTitle>
+            <CardTitle className="text-lg">{member.fullName}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Bergabung {formatDistanceToNow(new Date(member.joined_at), { addSuffix: true, locale: id })}
+              Bergabung {formatDistanceToNow(new Date(member.joinedAt), { addSuffix: true, locale: id })}
             </p>
           </div>
-          <Badge variant={member.is_approved ? "default" : "secondary"}>
-            {member.is_approved ? "Approved" : "Pending"}
+          <Badge variant={member.isApproved ? "default" : "secondary"}>
+            {member.isApproved ? "Approved" : "Pending"}
           </Badge>
         </div>
       </CardHeader>
@@ -120,12 +120,12 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
 
         <div>
           <span className="text-sm text-muted-foreground">
-            Mengetahui dari: <span className="font-medium">{member.how_did_you_hear}</span>
+            Mengetahui dari: <span className="font-medium">{member.howDidYouHear}</span>
           </span>
         </div>
 
         <div className="flex items-center space-x-2 pt-2">
-          {!member.is_approved && (
+          {!member.isApproved && (
             <Button
               size="sm"
               onClick={() => handleApprove(member.id)}
@@ -137,7 +137,7 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
             </Button>
           )}
 
-          {member.is_approved && (
+          {member.isApproved && (
             <Button
               size="sm"
               variant="outline"

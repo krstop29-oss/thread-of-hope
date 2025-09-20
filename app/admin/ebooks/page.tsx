@@ -1,30 +1,34 @@
-import { createClient } from "@/lib/supabase/server"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import AdminNavbar from "@/components/admin/admin-navbar"
 import EbookManagement from "@/components/admin/ebook-management"
 
 export default async function AdminEbooksPage() {
-  const supabase = await createClient()
+  const session = await getServerSession(authOptions)
 
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data?.user) {
-    redirect("/auth/login")
-  }
-
-  // Check if user is admin
-  const { data: adminUser } = await supabase.from("admin_users").select("*").eq("id", data.user.id).single()
-
-  if (!adminUser) {
+  if (!session || session.user.role !== 'admin') {
     redirect("/")
   }
 
-  // Fetch all ebooks
-  const { data: ebooks } = await supabase.from("ebooks").select("*").order("created_at", { ascending: false })
+  // Fetch all ebooks from API
+  let ebooks = []
+  try {
+    const response = await fetch('/api/ebooks?limit=1000', {
+      cache: 'no-store'
+    })
+    if (response.ok) {
+      const data = await response.json()
+      ebooks = data.data || []
+    }
+  } catch (error) {
+    console.error("Error fetching ebooks:", error)
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminNavbar user={data.user} />
-      <EbookManagement initialEbooks={ebooks || []} />
+      <AdminNavbar user={session.user} />
+      <EbookManagement initialEbooks={ebooks} />
     </div>
   )
 }

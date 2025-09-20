@@ -7,21 +7,27 @@ Panduan lengkap untuk setup dan menjalankan Thread of Hope platform.
 ### 1. Prerequisites Check
 
 \`\`\`bash
+
 # Check Node.js version (harus 18+)
+
 node --version
 
 # Check npm version
+
 npm --version
 \`\`\`
 
 ### 2. Clone & Install
 
 \`\`\`bash
+
 # Clone repository
+
 git clone https://github.com/krstop29-oss/thread-of-hope.git
 cd thread-of-hope
 
 # Install dependencies
+
 npm install
 \`\`\`
 
@@ -40,7 +46,9 @@ npm install
 Di Supabase Dashboard → Settings → API:
 
 \`\`\`env
+
 # Copy values ini ke .env.local
+
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
@@ -54,83 +62,83 @@ Di Supabase → SQL Editor, jalankan scripts berikut secara berurutan:
 \`\`\`sql
 -- User profiles table
 CREATE TABLE user_profiles (
-  id UUID REFERENCES auth.users(id) PRIMARY KEY,
-  email TEXT,
-  full_name TEXT,
-  avatar_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+id UUID REFERENCES auth.users(id) PRIMARY KEY,
+email TEXT,
+full_name TEXT,
+avatar_url TEXT,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Curhat submissions table
 CREATE TABLE curhat_submissions (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT,
-  email TEXT,
-  age INTEGER,
-  story TEXT NOT NULL,
-  is_approved BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+name TEXT,
+email TEXT,
+age INTEGER,
+story TEXT NOT NULL,
+is_approved BOOLEAN DEFAULT FALSE,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- E-books table
 CREATE TABLE ebooks (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  author TEXT NOT NULL,
-  description TEXT,
-  cover_image_url TEXT,
-  file_url TEXT,
-  category TEXT,
-  download_count INTEGER DEFAULT 0,
-  is_published BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+title TEXT NOT NULL,
+author TEXT NOT NULL,
+description TEXT,
+cover_image_url TEXT,
+file_url TEXT,
+category TEXT,
+download_count INTEGER DEFAULT 0,
+is_published BOOLEAN DEFAULT FALSE,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Community members table
 CREATE TABLE community_members (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  full_name TEXT NOT NULL,
-  email TEXT NOT NULL UNIQUE,
-  phone TEXT,
-  motivation TEXT,
-  is_approved BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+full_name TEXT NOT NULL,
+email TEXT NOT NULL UNIQUE,
+phone TEXT,
+motivation TEXT,
+is_approved BOOLEAN DEFAULT FALSE,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Events table
 CREATE TABLE events (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  description TEXT,
-  event_date TIMESTAMP WITH TIME ZONE,
-  location TEXT,
-  image_url TEXT,
-  is_published BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+title TEXT NOT NULL,
+description TEXT,
+event_date TIMESTAMP WITH TIME ZONE,
+location TEXT,
+image_url TEXT,
+is_published BOOLEAN DEFAULT FALSE,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Gallery items table
 CREATE TABLE gallery_items (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  description TEXT,
-  image_url TEXT NOT NULL,
-  category TEXT,
-  is_published BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+title TEXT NOT NULL,
+description TEXT,
+image_url TEXT NOT NULL,
+category TEXT,
+is_published BOOLEAN DEFAULT FALSE,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Admin users table
 CREATE TABLE admin_users (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  email TEXT NOT NULL UNIQUE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+email TEXT NOT NULL UNIQUE,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 \`\`\`
 
@@ -164,38 +172,44 @@ CREATE POLICY "Anyone can join community" ON community_members FOR INSERT WITH C
 CREATE OR REPLACE FUNCTION is_admin(user_email TEXT)
 RETURNS BOOLEAN AS $$
 BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM admin_users 
-    WHERE email = user_email
-  );
+RETURN EXISTS (
+SELECT 1 FROM admin_users
+WHERE email = user_email
+);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+$$
+LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to get user email from JWT
 CREATE OR REPLACE FUNCTION get_user_email()
-RETURNS TEXT AS $$
+RETURNS TEXT AS
+$$
+
 BEGIN
-  RETURN (auth.jwt() ->> 'email');
+RETURN (auth.jwt() ->> 'email');
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+$$
+LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Admin policies using functions
-CREATE POLICY "Admins can do everything on curhat" ON curhat_submissions 
+CREATE POLICY "Admins can do everything on curhat" ON curhat_submissions
   FOR ALL USING (is_admin(get_user_email()));
 
-CREATE POLICY "Admins can do everything on ebooks" ON ebooks 
+CREATE POLICY "Admins can do everything on ebooks" ON ebooks
   FOR ALL USING (is_admin(get_user_email()));
 
-CREATE POLICY "Admins can do everything on community" ON community_members 
+CREATE POLICY "Admins can do everything on community" ON community_members
   FOR ALL USING (is_admin(get_user_email()));
 
-CREATE POLICY "Admins can do everything on events" ON events 
+CREATE POLICY "Admins can do everything on events" ON events
   FOR ALL USING (is_admin(get_user_email()));
 
-CREATE POLICY "Admins can do everything on gallery" ON gallery_items 
+CREATE POLICY "Admins can do everything on gallery" ON gallery_items
   FOR ALL USING (is_admin(get_user_email()));
 
-CREATE POLICY "Admins can read admin_users" ON admin_users 
+CREATE POLICY "Admins can read admin_users" ON admin_users
   FOR SELECT USING (is_admin(get_user_email()));
 \`\`\`
 
@@ -205,11 +219,11 @@ CREATE POLICY "Admins can read admin_users" ON admin_users
 INSERT INTO admin_users (email) VALUES ('your-email@example.com');
 
 -- Insert sample ebook
-INSERT INTO ebooks (title, author, description, category, is_published) VALUES 
+INSERT INTO ebooks (title, author, description, category, is_published) VALUES
 ('Panduan Kesehatan Mental', 'Tim Thread of Hope', 'Panduan lengkap untuk menjaga kesehatan mental', 'Self Help', true);
 
 -- Insert sample event
-INSERT INTO events (title, description, event_date, location, is_published) VALUES 
+INSERT INTO events (title, description, event_date, location, is_published) VALUES
 ('Workshop Mindfulness', 'Workshop untuk belajar teknik mindfulness', NOW() + INTERVAL '7 days', 'Jakarta', true);
 \`\`\`
 
@@ -309,6 +323,22 @@ DROP TABLE IF EXISTS admin_users CASCADE;
 
 ## 📱 Testing
 
+### Authentication redirect & creating a test user
+
+1. In Supabase Dashboard → Authentication → Settings:
+  - Set "Site URL" to `http://localhost:3000`
+  - Under "Redirect URLs" add `http://localhost:3000/auth/login`
+
+2. To create a local test user (uses your service_role key). From project root run in PowerShell:
+
+```powershell
+# Ensure .env.local contains SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_URL
+node .\\scripts\\create_test_user.mjs test+local@example.com P4ssw0rd!
+```
+
+This will create a confirmed user in your Supabase auth and allow you to log in using the project's `/auth/login` page. Do not commit your service role key to source control.
+
+
 ### Manual Testing Checklist
 
 - [ ] Homepage loads correctly
@@ -372,3 +402,4 @@ SUPABASE_ANON_KEY=your-anon-key
 ---
 
 **Need Help?** Buka issue di GitHub atau hubungi tim development.
+$$

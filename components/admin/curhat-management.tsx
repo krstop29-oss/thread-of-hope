@@ -8,15 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Check, X, Eye, Trash2 } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
 
 interface CurhatStory {
   id: string
   title: string
   content: string
-  author_name: string
-  is_approved: boolean
-  created_at: string
+  authorName: string
+  isApproved: boolean
+  createdAt: string
 }
 
 interface CurhatManagementProps {
@@ -26,7 +25,6 @@ interface CurhatManagementProps {
 export default function CurhatManagement({ initialStories }: CurhatManagementProps) {
   const [stories, setStories] = useState<CurhatStory[]>(initialStories)
   const [loading, setLoading] = useState<string | null>(null)
-  const supabase = createClient()
 
   const handleApprove = async (storyId: string) => {
     setLoading(storyId)
@@ -85,8 +83,8 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
     }
   }
 
-  const pendingStories = stories.filter((story) => !story.is_approved)
-  const approvedStories = stories.filter((story) => story.is_approved)
+  const pendingStories = stories.filter((story) => !story.isApproved)
+  const approvedStories = stories.filter((story) => story.isApproved)
 
   const StoryCard = ({ story }: { story: CurhatStory }) => (
     <Card key={story.id} className="mb-4">
@@ -95,12 +93,12 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
           <div>
             <CardTitle className="text-lg">{story.title}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              By {story.author_name} •{" "}
-              {formatDistanceToNow(new Date(story.created_at), { addSuffix: true, locale: id })}
+              By {story.authorName} •{" "}
+              {formatDistanceToNow(new Date(story.createdAt), { addSuffix: true, locale: id })}
             </p>
           </div>
-          <Badge variant={story.is_approved ? "default" : "secondary"}>
-            {story.is_approved ? "Approved" : "Pending"}
+          <Badge variant={story.isApproved ? "default" : "secondary"}>
+            {story.isApproved ? "Approved" : "Pending"}
           </Badge>
         </div>
       </CardHeader>
@@ -108,7 +106,7 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
         <p className="text-card-foreground mb-4 line-clamp-3">{story.content}</p>
 
         <div className="flex items-center space-x-2">
-          {!story.is_approved && (
+          {!story.isApproved && (
             <Button
               size="sm"
               onClick={() => handleApprove(story.id)}
@@ -120,7 +118,7 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
             </Button>
           )}
 
-          {story.is_approved && (
+          {story.isApproved && (
             <Button size="sm" variant="outline" onClick={() => handleReject(story.id)} disabled={loading === story.id}>
               <X className="w-4 h-4 mr-1" />
               Reject

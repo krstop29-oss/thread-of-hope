@@ -19,23 +19,32 @@ export default function FeaturesSection() {
   ]
 
   return (
-    <section className="bg-card py-16 lg:py-24">
+    <section className="py-24 bg-surface">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-card-foreground mb-6">Apa yang kami tawarkan?</h2>
-          <p className="text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-            Platform ini hadir untuk menjadi ruang aman, tempat berbagi cerita, menemukan inspirasi dari pengalaman
-            orang lain, serta membangun komunitas yang saling peduli melalui cerita dan momen kebersamaan.
-          </p>
+        <div className="mb-8">
+          <h3 className="text-lg font-medium text-foreground">Apa yang kami tawarkan?</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {features.map((feature, index) => (
-            <div key={index} className="bg-background p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-              <h3 className="text-xl font-bold text-foreground mb-4">{feature.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+        <div className="bg-white rounded-[30px] p-10 md:p-12 flex flex-col md:flex-row gap-10 box-border">
+          {/* Left description */}
+          <div className="deskripsi-wrapper max-w-[320px]">
+            <p className="text-lg leading-relaxed text-foreground">
+              Platform ini hadir untuk menjadi ruang aman, tempat berbagi cerita, menemukan inspirasi dari pengalaman
+              orang lain, serta membangun komunitas yang saling peduli melalui cerita dan momen kebersamaan.
+            </p>
+          </div>
+
+          {/* Right features grid */}
+          <div className="flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              {features.map((feature, index) => (
+                <div key={index} className="p-6 flex flex-col gap-3">
+                  <h4 className="text-[20px] font-semibold text-foreground leading-tight">{feature.title}</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>

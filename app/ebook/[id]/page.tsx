@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -18,16 +17,22 @@ interface EbookDetailPageProps {
 
 export default async function EbookDetailPage({ params }: EbookDetailPageProps) {
   const { id: ebookId } = await params
-  const supabase = await createClient()
 
-  const { data: ebook, error } = await supabase
-    .from("ebooks")
-    .select("*")
-    .eq("id", ebookId)
-    .eq("is_published", true)
-    .single()
+  // Fetch ebook from API
+  let ebook = null
+  try {
+    const response = await fetch(`/api/ebooks/${ebookId}`, {
+      cache: 'no-store'
+    })
+    if (response.ok) {
+      const data = await response.json()
+      ebook = data.data
+    }
+  } catch (error) {
+    console.error("Error fetching ebook:", error)
+  }
 
-  if (error || !ebook) {
+  if (!ebook) {
     notFound()
   }
 
@@ -47,9 +52,9 @@ export default async function EbookDetailPage({ params }: EbookDetailPageProps) 
             <Card className="sticky top-8">
               <CardContent className="p-6">
                 <div className="relative aspect-[3/4] mb-6 overflow-hidden rounded-lg">
-                  {ebook.cover_image_url ? (
+                  {ebook.coverImageUrl ? (
                     <Image
-                      src={ebook.cover_image_url || "/placeholder.svg"}
+                      src={ebook.coverImageUrl || "/placeholder.svg"}
                       alt={ebook.title}
                       fill
                       className="object-cover"
@@ -72,11 +77,11 @@ export default async function EbookDetailPage({ params }: EbookDetailPageProps) 
                   <div className="text-center text-sm text-muted-foreground">
                     <div className="flex items-center justify-center mb-2">
                       <Download className="w-4 h-4 mr-1" />
-                      {ebook.download_count} unduhan
+                      {ebook.downloadCount} unduhan
                     </div>
                     <div className="flex items-center justify-center">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {formatDistanceToNow(new Date(ebook.created_at), { addSuffix: true, locale: id })}
+                      {formatDistanceToNow(new Date(ebook.createdAt), { addSuffix: true, locale: id })}
                     </div>
                   </div>
                 </div>
@@ -116,12 +121,12 @@ export default async function EbookDetailPage({ params }: EbookDetailPageProps) 
                     </div>
                     <div>
                       <span className="font-medium text-card-foreground">Total Unduhan:</span>
-                      <span className="ml-2 text-muted-foreground">{ebook.download_count}</span>
+                      <span className="ml-2 text-muted-foreground">{ebook.downloadCount}</span>
                     </div>
                     <div>
                       <span className="font-medium text-card-foreground">Dipublikasi:</span>
                       <span className="ml-2 text-muted-foreground">
-                        {formatDistanceToNow(new Date(ebook.created_at), { addSuffix: true, locale: id })}
+                        {formatDistanceToNow(new Date(ebook.createdAt), { addSuffix: true, locale: id })}
                       </span>
                     </div>
                   </div>

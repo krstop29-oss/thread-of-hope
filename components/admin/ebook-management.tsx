@@ -17,11 +17,11 @@ interface Ebook {
   description: string
   author: string
   category: string
-  cover_image_url: string | null
-  file_url: string
-  is_published: boolean
-  download_count: number
-  created_at: string
+  coverImageUrl: string | null
+  fileUrl: string
+  isPublished: boolean
+  downloadCount: number
+  createdAt: string
 }
 
 interface EbookManagementProps {
@@ -38,11 +38,11 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
       const response = await fetch(`/api/ebooks/${ebookId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_published: !currentStatus }),
+        body: JSON.stringify({ isPublished: !currentStatus }),
       })
 
       if (response.ok) {
-        setEbooks(ebooks.map((ebook) => (ebook.id === ebookId ? { ...ebook, is_published: !currentStatus } : ebook)))
+        setEbooks(ebooks.map((ebook) => (ebook.id === ebookId ? { ...ebook, isPublished: !currentStatus } : ebook)))
       }
     } catch (error) {
       console.error("Error toggling publish status:", error)
@@ -70,17 +70,17 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
     }
   }
 
-  const publishedEbooks = ebooks.filter((ebook) => ebook.is_published)
-  const draftEbooks = ebooks.filter((ebook) => !ebook.is_published)
+  const publishedEbooks = ebooks.filter((ebook) => ebook.isPublished)
+  const draftEbooks = ebooks.filter((ebook) => !ebook.isPublished)
 
   const EbookCard = ({ ebook }: { ebook: Ebook }) => (
     <Card key={ebook.id} className="mb-4">
       <CardContent className="p-6">
         <div className="flex gap-4">
           <div className="w-20 h-28 flex-shrink-0">
-            {ebook.cover_image_url ? (
+            {ebook.coverImageUrl ? (
               <Image
-                src={ebook.cover_image_url || "/placeholder.svg"}
+                src={ebook.coverImageUrl || "/placeholder.svg"}
                 alt={ebook.title}
                 width={80}
                 height={112}
@@ -100,8 +100,8 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
                 <p className="text-sm text-muted-foreground">by {ebook.author}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={ebook.is_published ? "default" : "secondary"}>
-                  {ebook.is_published ? "Published" : "Draft"}
+                <Badge variant={ebook.isPublished ? "default" : "secondary"}>
+                  {ebook.isPublished ? "Published" : "Draft"}
                 </Badge>
                 <Badge variant="outline">{ebook.category}</Badge>
               </div>
@@ -113,24 +113,24 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center">
                   <Download className="w-4 h-4 mr-1" />
-                  {ebook.download_count} downloads
+                  {ebook.downloadCount} downloads
                 </div>
-                <span>{formatDistanceToNow(new Date(ebook.created_at), { addSuffix: true, locale: id })}</span>
+                <span>{formatDistanceToNow(new Date(ebook.createdAt), { addSuffix: true, locale: id })}</span>
               </div>
 
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" onClick={() => window.open(`/ebook/${ebook.id}`, "_blank")}>
+                <Button size="sm" variant="outline" onClick={() => window.open(ebook.fileUrl, "_blank")}>
                   <Eye className="w-4 h-4 mr-1" />
                   View
                 </Button>
 
                 <Button
                   size="sm"
-                  variant={ebook.is_published ? "secondary" : "default"}
-                  onClick={() => handleTogglePublish(ebook.id, ebook.is_published)}
+                  variant={ebook.isPublished ? "secondary" : "default"}
+                  onClick={() => handleTogglePublish(ebook.id, ebook.isPublished)}
                   disabled={loading === ebook.id}
                 >
-                  {ebook.is_published ? "Unpublish" : "Publish"}
+                  {ebook.isPublished ? "Unpublish" : "Publish"}
                 </Button>
 
                 <Button size="sm" variant="outline">

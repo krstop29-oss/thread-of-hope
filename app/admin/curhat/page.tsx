@@ -1,30 +1,34 @@
-import { createClient } from "@/lib/supabase/server"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import AdminNavbar from "@/components/admin/admin-navbar"
 import CurhatManagement from "@/components/admin/curhat-management"
 
 export default async function AdminCurhatPage() {
-  const supabase = await createClient()
+  const session = await getServerSession(authOptions)
 
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data?.user) {
-    redirect("/auth/login")
-  }
-
-  // Check if user is admin
-  const { data: adminUser } = await supabase.from("admin_users").select("*").eq("id", data.user.id).single()
-
-  if (!adminUser) {
+  if (!session || session.user.role !== 'admin') {
     redirect("/")
   }
 
-  // Fetch all curhat stories
-  const { data: stories } = await supabase.from("curhat").select("*").order("created_at", { ascending: false })
+  // Fetch all curhat stories from API
+  let stories = []
+  try {
+    const response = await fetch('/api/curhat?limit=1000', {
+      cache: 'no-store'
+    })
+    if (response.ok) {
+      const data = await response.json()
+      stories = data.data || []
+    }
+  } catch (error) {
+    console.error("Error fetching stories:", error)
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminNavbar user={data.user} />
-      <CurhatManagement initialStories={stories || []} />
+      <AdminNavbar user={session.user} />
+      <CurhatManagement initialStories={stories} />
     </div>
   )
 }

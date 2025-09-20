@@ -41,10 +41,10 @@ export default function Footer() {
             </ul>
             <div className="flex space-x-3">
               <Link href="#" className="hover:opacity-75 transition-opacity">
-                <Image src="/thread of hope/images/icon whatsapp.png" alt="WhatsApp" width={24} height={24} />
+                <Image src="/images/icon-whatsapp.png" alt="WhatsApp" width={24} height={24} />
               </Link>
               <Link href="#" className="hover:opacity-75 transition-opacity">
-                <Image src="/thread of hope/images/icon tele.png" alt="Telegram" width={24} height={24} />
+                <Image src="/images/icon-tele.png" alt="Telegram" width={24} height={24} />
               </Link>
             </div>
           </div>

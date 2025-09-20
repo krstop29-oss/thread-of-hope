@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import { formatDistanceToNow } from "date-fns"
@@ -16,16 +15,22 @@ interface CurhatDetailPageProps {
 
 export default async function CurhatDetailPage({ params }: CurhatDetailPageProps) {
   const { id: storyId } = await params
-  const supabase = await createClient()
 
-  const { data: story, error } = await supabase
-    .from("curhat")
-    .select("*")
-    .eq("id", storyId)
-    .eq("is_approved", true)
-    .single()
+  // Fetch story from API
+  let story = null
+  try {
+    const response = await fetch(`/api/curhat/${storyId}`, {
+      cache: 'no-store'
+    })
+    if (response.ok) {
+      const data = await response.json()
+      story = data.data
+    }
+  } catch (error) {
+    console.error("Error fetching story:", error)
+  }
 
-  if (error || !story) {
+  if (!story) {
     notFound()
   }
 
@@ -43,16 +48,16 @@ export default async function CurhatDetailPage({ params }: CurhatDetailPageProps
           <CardHeader className="pb-6">
             <div className="flex items-center space-x-4">
               <Image
-                src="/thread of hope/images/icon profile.png"
+                src="/images/icon-profile.png"
                 alt="Profile"
                 width={64}
                 height={64}
                 className="rounded-full"
               />
               <div>
-                <h2 className="text-2xl font-bold text-card-foreground">{story.author_name}</h2>
+                <h2 className="text-2xl font-bold text-card-foreground">{story.authorName}</h2>
                 <p className="text-muted-foreground">
-                  {formatDistanceToNow(new Date(story.created_at), {
+                  {formatDistanceToNow(new Date(story.createdAt), {
                     addSuffix: true,
                     locale: id,
                   })}

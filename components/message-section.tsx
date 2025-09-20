@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import { createClient } from "@/lib/supabase/client"
 
 interface CurhatMessage {
   id: string
   title: string
   content: string
-  author_name: string
-  created_at: string
+  authorName: string
+  createdAt: string
 }
 
 export default function MessageSection() {
@@ -18,21 +17,19 @@ export default function MessageSection() {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      const supabase = createClient()
-
-      const { data, error } = await supabase
-        .from("curhat")
-        .select("*")
-        .eq("is_approved", true)
-        .order("created_at", { ascending: false })
-        .limit(3)
-
-      if (error) {
+      try {
+        const response = await fetch("/api/curhat?approved=true&limit=3")
+        if (response.ok) {
+          const data = await response.json()
+          setMessages(data.data || [])
+        } else {
+          console.error("Error fetching messages")
+        }
+      } catch (error) {
         console.error("Error fetching messages:", error)
-      } else {
-        setMessages(data || [])
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     fetchMessages()
@@ -69,14 +66,14 @@ export default function MessageSection() {
               >
                 <div className="flex items-center mb-4">
                   <Image
-                    src="/thread of hope/images/icon profile.png"
+                    src="/images/icon-profile.png"
                     alt="Profile"
                     width={40}
                     height={40}
                     className="rounded-full"
                   />
                   <div className="ml-3">
-                    <span className="font-semibold text-foreground">{message.author_name}</span>
+                    <span className="font-semibold text-foreground">{message.authorName}</span>
                   </div>
                 </div>
                 <h3 className="font-bold text-foreground mb-2">{message.title}</h3>

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { prisma } from "@/lib/prisma"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
@@ -10,28 +10,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 })
     }
 
-    const supabase = await createClient()
-
-    const { data, error } = await supabase
-      .from("curhat")
-      .insert({
+    const data = await prisma.curhat.create({
+      data: {
         title: harapan,
         content: cerita,
-        author_name: nama,
-        is_approved: false, // Requires admin approval
-      })
-      .select()
-      .single()
-
-    if (error) {
-      console.error("Supabase error:", error)
-      return NextResponse.json({ error: "Failed to submit story" }, { status: 500 })
-    }
+        authorName: nama,
+        isApproved: false, // Requires admin approval
+      },
+    })
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error("API error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Database error:", error)
+    return NextResponse.json({ error: "Failed to submit story" }, { status: 500 })
   }
 }
 
@@ -42,35 +33,31 @@ export async function GET(request: NextRequest) {
     const limit = Number.parseInt(searchParams.get("limit") || "10")
     const approved = searchParams.get("approved") !== "false"
 
-    const supabase = await createClient()
+    const skip = (page - 1) * limit
 
-    let query = supabase.from("curhat").select("*", { count: "exact" }).order("created_at", { ascending: false })
-
-    if (approved) {
-      query = query.eq("is_approved", true)
-    }
-
-    const from = (page - 1) * limit
-    const to = from + limit - 1
-
-    const { data, error, count } = await query.range(from, to)
-
-    if (error) {
-      console.error("Supabase error:", error)
-      return NextResponse.json({ error: "Failed to fetch stories" }, { status: 500 })
-    }
+    const [data, total] = await Promise.all([
+      prisma.curhat.findMany({
+        where: approved ? { isApproved: true } : {},
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.curhat.count({
+        where: approved ? { isApproved: true } : {},
+      }),
+    ])
 
     return NextResponse.json({
       data,
       pagination: {
         page,
         limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     })
   } catch (error) {
-    console.error("API error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Database error:", error)
+    return NextResponse.json({ error: "Failed to fetch stories" }, { status: 500 })
   }
 }

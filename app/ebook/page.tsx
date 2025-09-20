@@ -1,19 +1,19 @@
-import { createClient } from "@/lib/supabase/server"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import EbookGrid from "@/components/ebook-grid"
 
 export default async function EbookPage() {
-  const supabase = await createClient()
-
-  // Fetch published ebooks
-  const { data: ebooks, error } = await supabase
-    .from("ebooks")
-    .select("*")
-    .eq("is_published", true)
-    .order("created_at", { ascending: false })
-
-  if (error) {
+  // Fetch published ebooks from API
+  let ebooks = []
+  try {
+    const response = await fetch('/api/ebooks?published=true&limit=50', {
+      cache: 'no-store'
+    })
+    if (response.ok) {
+      const data = await response.json()
+      ebooks = data.data || []
+    }
+  } catch (error) {
     console.error("Error fetching ebooks:", error)
   }
 
@@ -35,7 +35,7 @@ export default async function EbookPage() {
       </section>
 
       {/* E-books Grid */}
-      <EbookGrid initialEbooks={ebooks || []} />
+      <EbookGrid initialEbooks={ebooks} />
 
       <Footer />
     </main>

@@ -2,24 +2,23 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { LogOut, Home } from "lucide-react"
-import type { User } from "@supabase/supabase-js"
 
 interface AdminNavbarProps {
-  user: User
+  user: {
+    id: string
+    email?: string | null
+    name?: string | null
+  }
 }
 
 export default function AdminNavbar({ user }: AdminNavbarProps) {
   const pathname = usePathname()
-  const router = useRouter()
-  const supabase = createClient()
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push("/")
+    await signOut({ callbackUrl: "/" })
   }
 
   const navItems = [

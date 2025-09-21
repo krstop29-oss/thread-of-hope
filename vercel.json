@@ -10,5 +10,9 @@
     "PRISMA_GENERATE_DATAPROXY": "true",
     "PRISMA_GENERATE_SKIP_DOWNLOAD": "true"
   },
-  "regions": ["sin1"]
+  "regions": ["sin1"],
+  "pnpm": {
+    "enablePnp": false,
+    "overrides": {}
+  }
 }

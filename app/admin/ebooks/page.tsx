@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import AdminNavbar from "@/components/admin/admin-navbar"
 import EbookManagement from "@/components/admin/ebook-management"
+import { apiUrl } from "@/lib/api"
 
 export default async function AdminEbooksPage() {
   const session = await getServerSession(authOptions)
@@ -14,8 +15,9 @@ export default async function AdminEbooksPage() {
   // Fetch all ebooks from API
   let ebooks = []
   try {
-    const response = await fetch('/api/ebooks?limit=1000', {
-      cache: 'no-store'
+    const response = await fetch(apiUrl('/api/ebooks?limit=1000&published=false'), {
+      cache: 'force-cache',
+      next: { revalidate: 300 } // Revalidate every 5 minutes
     })
     if (response.ok) {
       const data = await response.json()

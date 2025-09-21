@@ -14,7 +14,7 @@ async function createAdmin() {
   try {
     console.log('Creating admin user...')
 
-    const hashedPassword = await bcrypt.hash('admin123', 10)
+    const hashedPassword = await bcrypt.hash('rikariyani9173', 10)
 
     const user = await prisma.user.upsert({
       where: { email: 'admin@threadofhope.com' },
@@ -29,7 +29,7 @@ async function createAdmin() {
 
     console.log('✅ Admin user created successfully!')
     console.log('📧 Email: admin@threadofhope.com')
-    console.log('🔑 Password: admin123')
+    console.log('🔑 Password: rikariyani9173')
     console.log('')
     console.log('You can now login at: /auth/login')
 

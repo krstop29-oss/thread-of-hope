@@ -26,6 +26,7 @@ export default function AdminNavbar({ user }: AdminNavbarProps) {
     { href: "/admin/curhat", label: "Manajemen Curhat" },
     { href: "/admin/ebooks", label: "E-Book" },
     { href: "/admin/gallery", label: "Galeri" },
+    { href: "/admin/events", label: "Event" },
     { href: "/admin/members", label: "Anggota" },
   ]
 

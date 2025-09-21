@@ -82,12 +82,12 @@ model Ebook {
   title          String
   description    String?
   coverImagePath String?
-  filePath       String
+  externalUrl    String
   author         String
   category       String   @default("general")
   isPublished    Boolean  @default(false)
   isFeatured     Boolean  @default(false)
-  downloadCount  Int      @default(0)
+  viewCount      Int      @default(0)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }

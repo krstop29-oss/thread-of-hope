@@ -17,10 +17,10 @@ interface Ebook {
   description: string
   author: string
   category: string
-  cover_image_url: string | null
-  file_url: string
-  download_count: number
-  created_at: string
+  coverImagePath: string | null
+  externalUrl: string
+  viewCount: number
+  createdAt: string
 }
 
 interface EbookGridProps {
@@ -47,22 +47,24 @@ export default function EbookGrid({ initialEbooks }: EbookGridProps) {
     return matchesSearch && matchesCategory
   })
 
-  const handleDownload = async (ebookId: string, fileUrl: string) => {
+  const handleView = async (ebookId: string, externalUrl: string) => {
     try {
-      // Increment download count
-      await fetch(`/api/ebooks/${ebookId}/download`, {
+      // Increment view count (we'll need to create this API endpoint)
+      await fetch(`/api/ebooks/${ebookId}/view`, {
         method: "POST",
       })
 
       // Update local state
       setEbooks(
-        ebooks.map((ebook) => (ebook.id === ebookId ? { ...ebook, download_count: ebook.download_count + 1 } : ebook)),
+        ebooks.map((ebook) => (ebook.id === ebookId ? { ...ebook, viewCount: ebook.viewCount + 1 } : ebook)),
       )
 
-      // Open download link
-      window.open(fileUrl, "_blank")
+      // Open external link
+      window.open(externalUrl, "_blank")
     } catch (error) {
-      console.error("Error downloading ebook:", error)
+      console.error("Error opening ebook:", error)
+      // Still open the link even if the API call fails
+      window.open(externalUrl, "_blank")
     }
   }
 
@@ -108,60 +110,60 @@ export default function EbookGrid({ initialEbooks }: EbookGridProps) {
 
         {/* E-books Grid */}
         {filteredEbooks.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {filteredEbooks.map((ebook) => (
-              <Card key={ebook.id} className="hover:shadow-lg transition-shadow group">
+              <Card key={ebook.id} className="hover:shadow-md transition-shadow group">
                 <CardHeader className="p-0">
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-t-lg">
-                    {ebook.cover_image_url ? (
+                  <div className="relative aspect-square overflow-hidden rounded-t-lg bg-muted">
+                    {ebook.coverImagePath ? (
                       <Image
-                        src={ebook.cover_image_url || "/placeholder.svg"}
+                        src={ebook.coverImagePath || "/placeholder.svg"}
                         alt={ebook.title}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-contain group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center">
-                        <BookOpen className="w-16 h-16 text-muted-foreground" />
+                      <div className="w-full h-full flex items-center justify-center">
+                        <BookOpen className="w-8 h-8 text-muted-foreground" />
                       </div>
                     )}
-                    <div className="absolute top-4 left-4">
-                      <Badge variant="secondary">{ebook.category}</Badge>
+                    <div className="absolute top-2 left-2">
+                      <Badge variant="secondary" className="text-xs">{ebook.category}</Badge>
                     </div>
                   </div>
                 </CardHeader>
 
-                <CardContent className="p-6 space-y-4">
+                <CardContent className="p-3 space-y-2">
                   <div>
-                    <h3 className="text-xl font-bold text-card-foreground mb-2 line-clamp-2">{ebook.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">oleh {ebook.author}</p>
-                    <p className="text-card-foreground line-clamp-3 leading-relaxed">{ebook.description}</p>
+                    <h3 className="text-sm font-semibold text-card-foreground mb-1 line-clamp-2 leading-tight">{ebook.title}</h3>
+                    <p className="text-xs text-muted-foreground mb-1">oleh {ebook.author}</p>
+                    <p className="text-xs text-card-foreground line-clamp-2 leading-tight">{ebook.description}</p>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {formatDistanceToNow(new Date(ebook.created_at), { addSuffix: true, locale: id })}
+                      <BookOpen className="w-3 h-3 mr-1" />
+                      {ebook.viewCount}
                     </div>
-                    <div className="flex items-center">
-                      <Download className="w-4 h-4 mr-1" />
-                      {ebook.download_count} unduhan
+                    <div className="text-xs">
+                      {formatDistanceToNow(new Date(ebook.createdAt), { addSuffix: true, locale: id })}
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-1">
                     <Link href={`/ebook/${ebook.id}`} className="flex-1">
-                      <Button variant="outline" className="w-full bg-transparent">
-                        <BookOpen className="w-4 h-4 mr-2" />
+                      <Button variant="outline" size="sm" className="w-full bg-transparent text-xs h-7">
+                        <BookOpen className="w-3 h-3 mr-1" />
                         Detail
                       </Button>
                     </Link>
                     <Button
-                      onClick={() => handleDownload(ebook.id, ebook.file_url)}
-                      className="flex-1 bg-primary text-primary-foreground hover:bg-secondary"
+                      onClick={() => handleView(ebook.id, ebook.externalUrl)}
+                      size="sm"
+                      className="flex-1 bg-primary text-primary-foreground hover:bg-secondary text-xs h-7"
                     >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download
+                      <BookOpen className="w-3 h-3 mr-1" />
+                      Baca
                     </Button>
                   </div>
                 </CardContent>

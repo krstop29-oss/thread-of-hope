@@ -1,13 +1,15 @@
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import EbookGrid from "@/components/ebook-grid"
+import { apiUrl } from "@/lib/api"
 
 export default async function EbookPage() {
   // Fetch published ebooks from API
   let ebooks = []
   try {
-    const response = await fetch('/api/ebooks?published=true&limit=50', {
-      cache: 'no-store'
+    const response = await fetch(apiUrl('/api/ebooks?published=true&limit=50'), {
+      cache: 'force-cache',
+      next: { revalidate: 3600 } // Revalidate every hour
     })
     if (response.ok) {
       const data = await response.json()

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Check, X, Mail, Phone, MapPin, Briefcase } from "lucide-react"
+import { apiUrl } from "@/lib/api"
 
 interface CommunityMember {
   id: string
@@ -34,7 +35,7 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
   const handleApprove = async (memberId: string) => {
     setLoading(memberId)
     try {
-      const response = await fetch(`/api/community/members/${memberId}`, {
+      const response = await fetch(apiUrl(`/api/community/members/${memberId}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isApproved: true }),
@@ -53,7 +54,7 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
   const handleReject = async (memberId: string) => {
     setLoading(memberId)
     try {
-      const response = await fetch(`/api/community/members/${memberId}`, {
+      const response = await fetch(apiUrl(`/api/community/members/${memberId}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isApproved: false }),

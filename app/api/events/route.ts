@@ -10,27 +10,25 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const page = Number.parseInt(searchParams.get("page") || "1")
     const limit = Number.parseInt(searchParams.get("limit") || "12")
-    const category = searchParams.get("category")
-    const published = searchParams.get("published") !== "false"
+    const upcoming = searchParams.get("upcoming") === "true"
 
     const skip = (page - 1) * limit
 
     const where: any = {}
-    if (published) {
-      where.isPublished = true
-    }
-    if (category && category !== "all") {
-      where.category = category
+    if (upcoming) {
+      where.eventDate = {
+        gte: new Date()
+      }
     }
 
     const [data, total] = await Promise.all([
-      prisma.ebook.findMany({
+      prisma.event.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { eventDate: "asc" },
         skip,
         take: limit,
       }),
-      prisma.ebook.count({ where }),
+      prisma.event.count({ where }),
     ])
 
     return NextResponse.json({
@@ -44,7 +42,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("Database error:", error)
-    return NextResponse.json({ error: "Failed to fetch ebooks" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 })
   }
 }
 
@@ -57,28 +55,26 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, author, category, coverImagePath, externalUrl } = body
+    const { title, description, eventDate, location, imagePath, isFeatured } = body
 
-    if (!title || !description || !author || !category || !externalUrl) {
+    if (!title || !eventDate) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const data = await prisma.ebook.create({
+    const data = await prisma.event.create({
       data: {
         title,
         description,
-        author,
-        category,
-        coverImagePath,
-        externalUrl,
-        isPublished: false,
-        viewCount: 0,
+        eventDate: new Date(eventDate),
+        location,
+        imagePath,
+        isFeatured: isFeatured || false,
       },
     })
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
     console.error("Database error:", error)
-    return NextResponse.json({ error: "Failed to create ebook" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to create event" }, { status: 500 })
   }
 }

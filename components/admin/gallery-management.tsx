@@ -10,12 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, Edit, Trash2, Plus, Star } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { apiUrl } from "@/lib/api"
 
 interface GalleryItem {
   id: string
   title: string
   description: string | null
-  imageUrl: string
+  imagePath: string
   category: string
   isFeatured: boolean
   createdAt: string
@@ -32,7 +33,7 @@ export default function GalleryManagement({ initialGalleryItems }: GalleryManage
   const handleToggleFeatured = async (itemId: string, currentStatus: boolean) => {
     setLoading(itemId)
     try {
-      const response = await fetch(`/api/gallery/${itemId}`, {
+      const response = await fetch(apiUrl(`/api/gallery/${itemId}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isFeatured: !currentStatus }),
@@ -53,7 +54,7 @@ export default function GalleryManagement({ initialGalleryItems }: GalleryManage
 
     setLoading(itemId)
     try {
-      const response = await fetch(`/api/gallery/${itemId}`, {
+      const response = await fetch(apiUrl(`/api/gallery/${itemId}`), {
         method: "DELETE",
       })
 
@@ -76,7 +77,7 @@ export default function GalleryManagement({ initialGalleryItems }: GalleryManage
         <div className="flex gap-4">
           <div className="w-24 h-24 flex-shrink-0">
             <Image
-              src={item.imageUrl || "/placeholder.svg"}
+              src={item.imagePath || "/placeholder.svg"}
               alt={item.title}
               width={96}
               height={96}
@@ -102,7 +103,7 @@ export default function GalleryManagement({ initialGalleryItems }: GalleryManage
               </div>
 
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" onClick={() => window.open(item.imageUrl, "_blank")}>
+                <Button size="sm" variant="outline" onClick={() => window.open(item.imagePath, "_blank")}>
                   <Eye className="w-4 h-4 mr-1" />
                   Lihat
                 </Button>
@@ -117,10 +118,12 @@ export default function GalleryManagement({ initialGalleryItems }: GalleryManage
                   {item.isFeatured ? "Hapus Unggulan" : "Jadikan Unggulan"}
                 </Button>
 
-                <Button size="sm" variant="outline">
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
-                </Button>
+                <Link href={`/admin/gallery/${item.id}`}>
+                  <Button size="sm" variant="outline">
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                </Link>
 
                 <Button
                   size="sm"

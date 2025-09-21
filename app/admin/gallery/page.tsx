@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { apiUrl } from "@/lib/api"
 import AdminNavbar from "@/components/admin/admin-navbar"
 import GalleryManagement from "@/components/admin/gallery-management"
 
@@ -14,8 +15,9 @@ export default async function AdminGalleryPage() {
   // Fetch all gallery items from API
   let galleryItems = []
   try {
-    const response = await fetch('/api/gallery?limit=1000', {
-      cache: 'no-store'
+    const response = await fetch(apiUrl('/api/gallery?limit=1000'), {
+      cache: 'force-cache',
+      next: { revalidate: 300 } // Revalidate every 5 minutes
     })
     if (response.ok) {
       const data = await response.json()

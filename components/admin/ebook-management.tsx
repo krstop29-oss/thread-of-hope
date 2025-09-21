@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, Edit, Trash2, Plus, Download } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { apiUrl } from "@/lib/api"
 
 interface Ebook {
   id: string
@@ -17,10 +18,10 @@ interface Ebook {
   description: string
   author: string
   category: string
-  coverImageUrl: string | null
-  fileUrl: string
+  coverImagePath: string | null
+  externalUrl: string
   isPublished: boolean
-  downloadCount: number
+  viewCount: number
   createdAt: string
 }
 
@@ -35,7 +36,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
   const handleTogglePublish = async (ebookId: string, currentStatus: boolean) => {
     setLoading(ebookId)
     try {
-      const response = await fetch(`/api/ebooks/${ebookId}`, {
+      const response = await fetch(apiUrl(`/api/ebooks/${ebookId}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPublished: !currentStatus }),
@@ -56,7 +57,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
 
     setLoading(ebookId)
     try {
-      const response = await fetch(`/api/ebooks/${ebookId}`, {
+      const response = await fetch(apiUrl(`/api/ebooks/${ebookId}`), {
         method: "DELETE",
       })
 
@@ -78,9 +79,9 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
       <CardContent className="p-6">
         <div className="flex gap-4">
           <div className="w-20 h-28 flex-shrink-0">
-            {ebook.coverImageUrl ? (
+            {ebook.coverImagePath ? (
               <Image
-                src={ebook.coverImageUrl || "/placeholder.svg"}
+                src={ebook.coverImagePath || "/placeholder.svg"}
                 alt={ebook.title}
                 width={80}
                 height={112}
@@ -112,14 +113,14 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center">
-                  <Download className="w-4 h-4 mr-1" />
-                  {ebook.downloadCount} unduhan
+                  <Eye className="w-4 h-4 mr-1" />
+                  {ebook.viewCount} dilihat
                 </div>
                 <span>{formatDistanceToNow(new Date(ebook.createdAt), { addSuffix: true, locale: id })}</span>
               </div>
 
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" onClick={() => window.open(ebook.fileUrl, "_blank")}>
+                <Button size="sm" variant="outline" onClick={() => window.open(ebook.externalUrl, "_blank")}>
                   <Eye className="w-4 h-4 mr-1" />
                   Lihat
                 </Button>
@@ -133,10 +134,12 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
                   {ebook.isPublished ? "Batal Terbitkan" : "Terbitkan"}
                 </Button>
 
-                <Button size="sm" variant="outline">
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
-                </Button>
+                <Link href={`/admin/ebooks/${ebook.id}`}>
+                  <Button size="sm" variant="outline">
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                </Link>
 
                 <Button
                   size="sm"

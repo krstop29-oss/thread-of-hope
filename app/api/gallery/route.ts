@@ -75,3 +75,36 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to create gallery item" }, { status: 500 })
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { id, title, description, imagePath, category, isFeatured } = body
+
+    if (!id || !title) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+
+    const data = await prisma.gallery.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        imagePath,
+        category: category || "general",
+        isFeatured: isFeatured || false,
+      },
+    })
+
+    return NextResponse.json({ success: true, data })
+  } catch (error) {
+    console.error("Database error:", error)
+    return NextResponse.json({ error: "Failed to update gallery item" }, { status: 500 })
+  }
+}

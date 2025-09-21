@@ -4,7 +4,15 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { fullName, email, phone, age, city, occupation, motivation, howDidYouHear } = body
+    // Handle both snake_case (from frontend) and camelCase field names
+    const fullName = body.fullName || body.full_name
+    const email = body.email
+    const phone = body.phone
+    const age = body.age
+    const city = body.city
+    const occupation = body.occupation
+    const motivation = body.motivation
+    const howDidYouHear = body.howDidYouHear || body.how_did_you_hear
 
     if (!fullName || !email || !age || !city || !motivation || !howDidYouHear) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })

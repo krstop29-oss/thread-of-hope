@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { prisma } from "@/lib/prisma"
 import AdminNavbar from "@/components/admin/admin-navbar"
 import CurhatManagement from "@/components/admin/curhat-management"
 
@@ -11,16 +12,21 @@ export default async function AdminCurhatPage() {
     redirect("/")
   }
 
-  // Fetch all curhat stories from API
+  // Fetch all curhat stories directly from database
   let stories = []
   try {
-    const response = await fetch('/api/curhat?limit=1000', {
-      cache: 'no-store'
+    stories = await prisma.curhat.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        authorName: true,
+        isApproved: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     })
-    if (response.ok) {
-      const data = await response.json()
-      stories = data.data || []
-    }
   } catch (error) {
     console.error("Error fetching stories:", error)
   }

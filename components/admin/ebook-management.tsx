@@ -52,7 +52,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
   }
 
   const handleDelete = async (ebookId: string) => {
-    if (!confirm("Are you sure you want to delete this e-book?")) return
+    if (!confirm("Apakah Anda yakin ingin menghapus e-book ini?")) return
 
     setLoading(ebookId)
     try {
@@ -101,7 +101,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant={ebook.isPublished ? "default" : "secondary"}>
-                  {ebook.isPublished ? "Published" : "Draft"}
+                  {ebook.isPublished ? "Diterbitkan" : "Draf"}
                 </Badge>
                 <Badge variant="outline">{ebook.category}</Badge>
               </div>
@@ -113,7 +113,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center">
                   <Download className="w-4 h-4 mr-1" />
-                  {ebook.downloadCount} downloads
+                  {ebook.downloadCount} unduhan
                 </div>
                 <span>{formatDistanceToNow(new Date(ebook.createdAt), { addSuffix: true, locale: id })}</span>
               </div>
@@ -121,7 +121,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="outline" onClick={() => window.open(ebook.fileUrl, "_blank")}>
                   <Eye className="w-4 h-4 mr-1" />
-                  View
+                  Lihat
                 </Button>
 
                 <Button
@@ -130,7 +130,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
                   onClick={() => handleTogglePublish(ebook.id, ebook.isPublished)}
                   disabled={loading === ebook.id}
                 >
-                  {ebook.isPublished ? "Unpublish" : "Publish"}
+                  {ebook.isPublished ? "Batal Terbitkan" : "Terbitkan"}
                 </Button>
 
                 <Button size="sm" variant="outline">
@@ -145,7 +145,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
                   disabled={loading === ebook.id}
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
-                  Delete
+                  Hapus
                 </Button>
               </div>
             </div>
@@ -159,22 +159,22 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">E-Book Management</h1>
-          <p className="text-muted-foreground mt-2">Manage your e-book library and publications</p>
+          <h1 className="text-3xl font-bold text-foreground">Manajemen E-Book</h1>
+          <p className="text-muted-foreground mt-2">Kelola perpustakaan dan publikasi e-book Anda</p>
         </div>
         <Link href="/admin/ebooks/new">
           <Button className="bg-primary text-primary-foreground hover:bg-secondary">
             <Plus className="w-4 h-4 mr-2" />
-            Add New E-Book
+            Tambah E-Book Baru
           </Button>
         </Link>
       </div>
 
       <Tabs defaultValue="published" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="published">Published ({publishedEbooks.length})</TabsTrigger>
-          <TabsTrigger value="drafts">Drafts ({draftEbooks.length})</TabsTrigger>
-          <TabsTrigger value="all">All E-Books ({ebooks.length})</TabsTrigger>
+          <TabsTrigger value="published">Diterbitkan ({publishedEbooks.length})</TabsTrigger>
+          <TabsTrigger value="drafts">Draf ({draftEbooks.length})</TabsTrigger>
+          <TabsTrigger value="all">Semua E-Book ({ebooks.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="published">
@@ -183,7 +183,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
           ) : (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No published e-books yet</p>
+                <p className="text-muted-foreground">Belum ada e-book yang diterbitkan</p>
               </CardContent>
             </Card>
           )}
@@ -195,7 +195,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
           ) : (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No draft e-books</p>
+                <p className="text-muted-foreground">Tidak ada e-book draf</p>
               </CardContent>
             </Card>
           )}
@@ -207,7 +207,7 @@ export default function EbookManagement({ initialEbooks }: EbookManagementProps)
           ) : (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No e-books created yet</p>
+                <p className="text-muted-foreground">Belum ada e-book yang dibuat</p>
               </CardContent>
             </Card>
           )}

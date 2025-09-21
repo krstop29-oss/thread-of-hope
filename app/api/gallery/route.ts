@@ -11,26 +11,22 @@ export async function GET(request: NextRequest) {
     const page = Number.parseInt(searchParams.get("page") || "1")
     const limit = Number.parseInt(searchParams.get("limit") || "12")
     const category = searchParams.get("category")
-    const published = searchParams.get("published") !== "false"
 
     const skip = (page - 1) * limit
 
     const where: any = {}
-    if (published) {
-      where.isPublished = true
-    }
     if (category && category !== "all") {
       where.category = category
     }
 
     const [data, total] = await Promise.all([
-      prisma.ebook.findMany({
+      prisma.gallery.findMany({
         where,
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      prisma.ebook.count({ where }),
+      prisma.gallery.count({ where }),
     ])
 
     return NextResponse.json({
@@ -44,7 +40,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error("Database error:", error)
-    return NextResponse.json({ error: "Failed to fetch ebooks" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch gallery items" }, { status: 500 })
   }
 }
 
@@ -57,28 +53,25 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, author, category, coverImagePath, filePath } = body
+    const { title, description, imagePath, category } = body
 
-    if (!title || !description || !author || !category || !filePath) {
+    if (!title || !imagePath) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const data = await prisma.ebook.create({
+    const data = await prisma.gallery.create({
       data: {
         title,
         description,
-        author,
-        category,
-        coverImagePath,
-        filePath,
-        isPublished: false,
-        downloadCount: 0,
+        imagePath,
+        category: category || "general",
+        isFeatured: false,
       },
     })
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
     console.error("Database error:", error)
-    return NextResponse.json({ error: "Failed to create ebook" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to create gallery item" }, { status: 500 })
   }
 }

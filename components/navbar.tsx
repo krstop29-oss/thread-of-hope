@@ -30,12 +30,6 @@ export default function Navbar() {
               Beranda
             </Link>
             <Link
-              href="/curhat"
-              className="px-6 py-2 rounded-full text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
-            >
-              Curhat
-            </Link>
-            <Link
               href="/tentang"
               className="px-6 py-2 rounded-full text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
             >
@@ -82,13 +76,6 @@ export default function Navbar() {
                 onClick={() => setIsOpen(false)}
               >
                 Beranda
-              </Link>
-              <Link
-                href="/curhat"
-                className="block px-3 py-2 rounded-md text-base font-medium text-card-foreground hover:bg-primary hover:text-primary-foreground"
-                onClick={() => setIsOpen(false)}
-              >
-                Curhat
               </Link>
               <Link
                 href="/tentang"

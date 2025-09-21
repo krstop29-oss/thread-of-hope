@@ -81,8 +81,8 @@ model Ebook {
   id             String   @id @default(cuid())
   title          String
   description    String?
-  coverImageUrl  String?
-  fileUrl        String
+  coverImagePath String?
+  filePath       String
   author         String
   category       String   @default("general")
   isPublished    Boolean  @default(false)
@@ -112,7 +112,7 @@ model Event {
   description String?
   eventDate   DateTime?
   location    String?
-  imageUrl    String?
+  imagePath   String?
   isFeatured  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -122,10 +122,11 @@ model Gallery {
   id          String   @id @default(cuid())
   title       String
   description String?
-  imageUrl    String
+  imagePath   String
   category    String   @default("general")
   isFeatured  Boolean  @default(false)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model AdminUser {

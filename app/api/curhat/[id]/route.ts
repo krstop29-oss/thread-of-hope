@@ -40,9 +40,24 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { id } = await params
     const body = await request.json()
 
+    // Convert snake_case to camelCase for database fields
+    const updateData: any = {}
+    if (body.is_approved !== undefined) {
+      updateData.isApproved = body.is_approved
+    }
+    if (body.title !== undefined) {
+      updateData.title = body.title
+    }
+    if (body.content !== undefined) {
+      updateData.content = body.content
+    }
+    if (body.author_name !== undefined) {
+      updateData.authorName = body.author_name
+    }
+
     const data = await prisma.curhat.update({
       where: { id },
-      data: body,
+      data: updateData,
     })
 
     return NextResponse.json({ success: true, data })

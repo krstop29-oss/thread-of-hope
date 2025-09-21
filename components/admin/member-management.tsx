@@ -83,7 +83,7 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
             </p>
           </div>
           <Badge variant={member.isApproved ? "default" : "secondary"}>
-            {member.isApproved ? "Approved" : "Pending"}
+            {member.isApproved ? "Disetujui" : "Menunggu"}
           </Badge>
         </div>
       </CardHeader>
@@ -133,7 +133,7 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
               className="bg-green-600 hover:bg-green-700"
             >
               <Check className="w-4 h-4 mr-1" />
-              Approve
+              Setujui
             </Button>
           )}
 
@@ -145,7 +145,7 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
               disabled={loading === member.id}
             >
               <X className="w-4 h-4 mr-1" />
-              Revoke
+              Cabut
             </Button>
           )}
 
@@ -161,15 +161,15 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Member Management</h1>
-        <p className="text-muted-foreground mt-2">Review and manage community member applications</p>
+        <h1 className="text-3xl font-bold text-foreground">Manajemen Anggota</h1>
+        <p className="text-muted-foreground mt-2">Tinjau dan kelola aplikasi anggota komunitas</p>
       </div>
 
       <Tabs defaultValue="pending" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="pending">Pending Review ({pendingMembers.length})</TabsTrigger>
-          <TabsTrigger value="approved">Approved ({approvedMembers.length})</TabsTrigger>
-          <TabsTrigger value="all">All Members ({members.length})</TabsTrigger>
+          <TabsTrigger value="pending">Menunggu Tinjauan ({pendingMembers.length})</TabsTrigger>
+          <TabsTrigger value="approved">Disetujui ({approvedMembers.length})</TabsTrigger>
+          <TabsTrigger value="all">Semua Anggota ({members.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pending">
@@ -178,7 +178,7 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
           ) : (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No pending member applications</p>
+                <p className="text-muted-foreground">Tidak ada aplikasi anggota yang menunggu</p>
               </CardContent>
             </Card>
           )}
@@ -190,7 +190,7 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
           ) : (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No approved members yet</p>
+                <p className="text-muted-foreground">Belum ada anggota yang disetujui</p>
               </CardContent>
             </Card>
           )}
@@ -202,7 +202,7 @@ export default function MemberManagement({ initialMembers }: MemberManagementPro
           ) : (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No member applications yet</p>
+                <p className="text-muted-foreground">Belum ada aplikasi anggota</p>
               </CardContent>
             </Card>
           )}

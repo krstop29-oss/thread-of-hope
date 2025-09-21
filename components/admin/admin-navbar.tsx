@@ -22,11 +22,11 @@ export default function AdminNavbar({ user }: AdminNavbarProps) {
   }
 
   const navItems = [
-    { href: "/admin", label: "Dashboard", exact: true },
-    { href: "/admin/curhat", label: "Curhat Management" },
-    { href: "/admin/ebooks", label: "E-Books" },
-    { href: "/admin/gallery", label: "Gallery" },
-    { href: "/admin/members", label: "Members" },
+    { href: "/admin", label: "Dasbor", exact: true },
+    { href: "/admin/curhat", label: "Manajemen Curhat" },
+    { href: "/admin/ebooks", label: "E-Book" },
+    { href: "/admin/gallery", label: "Galeri" },
+    { href: "/admin/members", label: "Anggota" },
   ]
 
   return (
@@ -36,7 +36,7 @@ export default function AdminNavbar({ user }: AdminNavbarProps) {
           {/* Logo and Navigation */}
           <div className="flex items-center space-x-8">
             <Link href="/admin" className="text-xl font-bold text-card-foreground">
-              Admin Panel
+              Panel Admin
             </Link>
 
             <div className="hidden md:flex items-center space-x-4">
@@ -65,7 +65,7 @@ export default function AdminNavbar({ user }: AdminNavbarProps) {
             <Link href="/">
               <Button variant="ghost" size="sm">
                 <Home className="w-4 h-4 mr-2" />
-                Back to Site
+                Kembali ke Situs
               </Button>
             </Link>
 
@@ -73,7 +73,7 @@ export default function AdminNavbar({ user }: AdminNavbarProps) {
 
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
+              Keluar
             </Button>
           </div>
         </div>

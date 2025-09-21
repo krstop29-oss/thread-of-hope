@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow, format } from "date-fns"
 import { id } from "date-fns/locale"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Check, X, Eye, Trash2 } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Check, X, Eye, Trash2, Calendar, User } from "lucide-react"
 
 interface CurhatStory {
   id: string
@@ -16,6 +17,7 @@ interface CurhatStory {
   authorName: string
   isApproved: boolean
   createdAt: string
+  updatedAt?: string
 }
 
 interface CurhatManagementProps {
@@ -25,6 +27,8 @@ interface CurhatManagementProps {
 export default function CurhatManagement({ initialStories }: CurhatManagementProps) {
   const [stories, setStories] = useState<CurhatStory[]>(initialStories)
   const [loading, setLoading] = useState<string | null>(null)
+  const [selectedStory, setSelectedStory] = useState<CurhatStory | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleApprove = async (storyId: string) => {
     setLoading(storyId)
@@ -36,7 +40,7 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
       })
 
       if (response.ok) {
-        setStories(stories.map((story) => (story.id === storyId ? { ...story, is_approved: true } : story)))
+        setStories(stories.map((story) => (story.id === storyId ? { ...story, isApproved: true, updatedAt: new Date().toISOString() } : story)))
       }
     } catch (error) {
       console.error("Error approving story:", error)
@@ -55,7 +59,7 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
       })
 
       if (response.ok) {
-        setStories(stories.map((story) => (story.id === storyId ? { ...story, is_approved: false } : story)))
+        setStories(stories.map((story) => (story.id === storyId ? { ...story, isApproved: false, updatedAt: new Date().toISOString() } : story)))
       }
     } catch (error) {
       console.error("Error rejecting story:", error)
@@ -65,7 +69,7 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
   }
 
   const handleDelete = async (storyId: string) => {
-    if (!confirm("Are you sure you want to delete this story?")) return
+    if (!confirm("Apakah Anda yakin ingin menghapus cerita ini?")) return
 
     setLoading(storyId)
     try {
@@ -83,6 +87,11 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
     }
   }
 
+  const handleViewStory = (story: CurhatStory) => {
+    setSelectedStory(story)
+    setIsModalOpen(true)
+  }
+
   const pendingStories = stories.filter((story) => !story.isApproved)
   const approvedStories = stories.filter((story) => story.isApproved)
 
@@ -97,9 +106,16 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
               {formatDistanceToNow(new Date(story.createdAt), { addSuffix: true, locale: id })}
             </p>
           </div>
-          <Badge variant={story.isApproved ? "default" : "secondary"}>
-            {story.isApproved ? "Approved" : "Pending"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={story.isApproved ? "default" : "secondary"}>
+              {story.isApproved ? "Disetujui" : "Menunggu"}
+            </Badge>
+            {story.isApproved && story.updatedAt && (
+              <span className="text-xs text-muted-foreground">
+                ✓ {formatDistanceToNow(new Date(story.updatedAt), { addSuffix: true, locale: id })}
+              </span>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -114,20 +130,20 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
               className="bg-green-600 hover:bg-green-700"
             >
               <Check className="w-4 h-4 mr-1" />
-              Approve
+              Setujui
             </Button>
           )}
 
           {story.isApproved && (
             <Button size="sm" variant="outline" onClick={() => handleReject(story.id)} disabled={loading === story.id}>
               <X className="w-4 h-4 mr-1" />
-              Reject
+              Tolak
             </Button>
           )}
 
-          <Button size="sm" variant="outline" onClick={() => window.open(`/curhat/${story.id}`, "_blank")}>
+          <Button size="sm" variant="outline" onClick={() => handleViewStory(story)}>
             <Eye className="w-4 h-4 mr-1" />
-            View
+            Lihat
           </Button>
 
           <Button
@@ -137,7 +153,7 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
             disabled={loading === story.id}
           >
             <Trash2 className="w-4 h-4 mr-1" />
-            Delete
+            Hapus
           </Button>
         </div>
       </CardContent>
@@ -147,15 +163,15 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Curhat Management</h1>
-        <p className="text-muted-foreground mt-2">Review and manage story submissions from the community</p>
+        <h1 className="text-3xl font-bold text-foreground">Manajemen Curhat</h1>
+        <p className="text-muted-foreground mt-2">Tinjau dan kelola pengajuan cerita dari komunitas</p>
       </div>
 
       <Tabs defaultValue="pending" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="pending">Pending Review ({pendingStories.length})</TabsTrigger>
-          <TabsTrigger value="approved">Approved ({approvedStories.length})</TabsTrigger>
-          <TabsTrigger value="all">All Stories ({stories.length})</TabsTrigger>
+          <TabsTrigger value="pending">Menunggu Tinjauan ({pendingStories.length})</TabsTrigger>
+          <TabsTrigger value="approved">Disetujui ({approvedStories.length})</TabsTrigger>
+          <TabsTrigger value="all">Semua Cerita ({stories.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pending">
@@ -164,7 +180,7 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
           ) : (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No pending stories to review</p>
+                <p className="text-muted-foreground">Tidak ada cerita yang menunggu tinjauan</p>
               </CardContent>
             </Card>
           )}
@@ -176,7 +192,7 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
           ) : (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No approved stories yet</p>
+                <p className="text-muted-foreground">Belum ada cerita yang disetujui</p>
               </CardContent>
             </Card>
           )}
@@ -188,12 +204,112 @@ export default function CurhatManagement({ initialStories }: CurhatManagementPro
           ) : (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No stories submitted yet</p>
+                <p className="text-muted-foreground">Belum ada cerita yang diajukan</p>
               </CardContent>
             </Card>
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Story Detail Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <User className="w-5 h-5 mr-2" />
+              Detail Cerita Curhat
+            </DialogTitle>
+          </DialogHeader>
+          {selectedStory && (
+            <div className="space-y-6">
+              {/* Story Header */}
+              <div className="border-b pb-4">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  {selectedStory.title}
+                </h3>
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <div className="flex items-center">
+                    <User className="w-4 h-4 mr-1" />
+                    <span>Oleh: {selectedStory.authorName}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    <span>
+                      {format(new Date(selectedStory.createdAt), "dd MMMM yyyy, HH:mm", { locale: id })}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <Badge variant={selectedStory.isApproved ? "default" : "secondary"}>
+                    {selectedStory.isApproved ? "Disetujui" : "Menunggu"}
+                  </Badge>
+                  {selectedStory.isApproved && selectedStory.updatedAt && (
+                    <span className="text-xs text-muted-foreground">
+                      Disetujui pada {format(new Date(selectedStory.updatedAt), "dd/MM/yyyy HH:mm", { locale: id })}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Story Content */}
+              <div>
+                <h4 className="font-medium text-foreground mb-3">Isi Cerita:</h4>
+                <div className="bg-muted p-4 rounded-lg">
+                  <p className="text-foreground whitespace-pre-wrap leading-relaxed">
+                    {selectedStory.content}
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end space-x-2 pt-4 border-t">
+                {!selectedStory.isApproved && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      handleApprove(selectedStory.id)
+                      setIsModalOpen(false)
+                    }}
+                    disabled={loading === selectedStory.id}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <Check className="w-4 h-4 mr-1" />
+                    Setujui Cerita
+                  </Button>
+                )}
+
+                {selectedStory.isApproved && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      handleReject(selectedStory.id)
+                      setIsModalOpen(false)
+                    }}
+                    disabled={loading === selectedStory.id}
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Tolak Cerita
+                  </Button>
+                )}
+
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => {
+                    handleDelete(selectedStory.id)
+                    setIsModalOpen(false)
+                  }}
+                  disabled={loading === selectedStory.id}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Hapus Cerita
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

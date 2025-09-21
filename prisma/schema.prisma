@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NextAuth.js models
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -24,8 +20,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -39,20 +34,19 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String     @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  role          String    @default("user")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts Account[]
-  sessions Session[]
-  adminUser AdminUser?
-  curhats   Curhat[]
+  role          String     @default("user")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  accounts      Account[]
+  adminUser     AdminUser?
+  curhats       Curhat[]
+  sessions      Session[]
 }
 
 model VerificationToken {
@@ -63,18 +57,16 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Application models
 model Curhat {
-  id          String   @id @default(cuid())
-  title       String
-  content     String
-  authorName  String
-  isApproved  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  authorId    String?
-
-  author User? @relation(fields: [authorId], references: [id])
+  id         String   @id @default(cuid())
+  title      String
+  content    String
+  authorName String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  authorId   String?
+  author     User?    @relation(fields: [authorId], references: [id])
 }
 
 model Ebook {
@@ -82,14 +74,14 @@ model Ebook {
   title          String
   description    String?
   coverImagePath String?
-  externalUrl    String
   author         String
   category       String   @default("general")
   isPublished    Boolean  @default(false)
   isFeatured     Boolean  @default(false)
-  viewCount      Int      @default(0)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  externalUrl    String
+  viewCount      Int      @default(0)
 }
 
 model CommunityMember {
@@ -107,15 +99,15 @@ model CommunityMember {
 }
 
 model Event {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
   eventDate   DateTime?
   location    String?
   imagePath   String?
-  isFeatured  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isFeatured  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Gallery {
@@ -133,6 +125,5 @@ model AdminUser {
   id        String   @id
   role      String   @default("admin")
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [id], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [id], references: [id], onDelete: Cascade)
 }
